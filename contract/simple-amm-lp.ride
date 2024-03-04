@@ -33,6 +33,10 @@ let feeRate = this.getInteger(feeRateKey).valueOrElse(20_0000) # 0.2%
 
 
 ### Functions ###
+func calcPrice() = {
+    fraction(getAssetBalance(priceAssetId), SCALE8, getAssetBalance(amountAssetId))
+}
+
 func calcRawSendAmount(initAmBal: Int, initPrBal: Int, paymentAmount: Int) = {
     let newPrBal = initPrBal + paymentAmount
     let newAmBal = fraction(initAmBal, initPrBal, newPrBal)
@@ -63,18 +67,17 @@ func calcSendAmount(paymentAssetId: ByteVector|Unit, paymentAmount: Int) = {
 func swapInternal(address: Address, i: Invocation) = {
     strict checks = [
         i.payments.size() > 0 || "should be with 1 payment".throw(),
-        i.payments[0].assetId == amountAssetId || i.payments[0].assetId == priceAssetId ||
-            ["payment assetId should be (", amountAssetIdString, ") or (", priceAssetIdString, ")"].makeString(" ").throw()
+        [amountAssetId, priceAssetId].containsElement(i.payments[0].assetId) ||
+            ["payment assetId should be", amountAssetIdString, "or", priceAssetIdString].makeString(" ").throw()
     ]
     let paymentAssetId = i.payments[0].assetId
     let paymentAmount = i.payments[0].amount
 
     let (sendAmount, feeAmount, sendAssetId, userRealPrice) = calcSendAmount(paymentAssetId, paymentAmount)
-    let sendActions = if (feeAmount <= 0) 
+    let sendActions = if (feeAmount > 0) 
         then [ ScriptTransfer(address, sendAmount, sendAssetId) ]
         else "amount is too low".throw()
 
-    
     (sendActions, (sendAmount, feeAmount, sendAssetId, userRealPrice))
 }
 
@@ -82,6 +85,16 @@ func swapInternal(address: Address, i: Invocation) = {
 @Callable(i)
 func swap() = {
     swapInternal(i.caller, i)
+}
+
+@Callable(i)
+func swapNoLess(minAmount: Int) = {
+    let (sendActions, tuple) = swapInternal(i.caller, i)
+    let (sendAmount, feeAmount, sendAssetId, userRealPrice) = tuple
+
+    if (sendAmount < minAmount) 
+        then ["Price slipped. minAmount: ", minAmount.toString(), " swapAmount: ", sendAmount.toString()].makeString("").throw()
+        else (sendActions, tuple)
 }
 
 @Callable(i)
