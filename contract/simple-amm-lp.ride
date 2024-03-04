@@ -1,0 +1,90 @@
+{-# STDLIB_VERSION 6 #-}
+{-# CONTENT_TYPE DAPP #-}
+{-# SCRIPT_TYPE ACCOUNT #-}
+
+
+### Keys ###
+let amountAssetIdKey = "amountAssetId"
+let priceAssetIdKey  = "priceAssetId"
+let feeRateKey       = "feeRate"
+
+
+### Helper functions ###
+func getAssetId(assetIdString: String) = {
+    if (assetIdString == "WAVES") then unit else assetIdString.fromBase58String()
+}
+func getAssetBalance(assetId: ByteVector|Unit) = {
+    match (assetId) {
+        case id:ByteVector => this.assetBalance(id)
+        case _ => this.wavesBalance().available
+      }
+}
+
+
+### Globals ###
+let amountAssetIdString = this.getStringValue(amountAssetIdKey)
+let amountAssetId = getAssetId(amountAssetIdString)
+
+let priceAssetIdString = this.getStringValue(priceAssetIdKey)
+let priceAssetId = getAssetId(priceAssetIdString)
+
+let SCALE8 = 1_0000_0000
+let feeRate = this.getInteger(feeRateKey).valueOrElse(20_0000) # 0.2%
+
+
+### Functions ###
+func calcRawSendAmount(initAmBal: Int, initPrBal: Int, paymentAmount: Int) = {
+    let newPrBal = initPrBal + paymentAmount
+    let newAmBal = fraction(initAmBal, initPrBal, newPrBal)
+    let sendAmount = initAmBal - newAmBal
+
+    sendAmount
+}
+
+func calcSendAmount(paymentAssetId: ByteVector|Unit, paymentAmount: Int) = {
+    let (amAssetId, prAssetId) = if (paymentAssetId == amountAssetId) 
+        then (priceAssetId, amountAssetId)
+        else (amountAssetId, priceAssetId)
+
+    let initAmBal = getAssetBalance(amAssetId)
+    let initPrBal = getAssetBalance(prAssetId) - paymentAmount
+
+    let rawSendAmount = calcRawSendAmount(initAmBal, initPrBal, paymentAmount)
+    let feeAmount = fraction(rawSendAmount, feeRate, SCALE8)
+    let sendAmount = rawSendAmount - feeAmount
+
+    let userRealPrice = if (paymentAssetId == amountAssetId) 
+        then fraction(sendAmount, SCALE8, paymentAmount)
+        else fraction(paymentAmount, SCALE8, sendAmount)
+
+    (sendAmount, feeAmount, amAssetId, userRealPrice)
+}
+
+func swapInternal(address: Address, i: Invocation) = {
+    strict checks = [
+        i.payments.size() > 0 || "should be with 1 payment".throw(),
+        i.payments[0].assetId == amountAssetId || i.payments[0].assetId == priceAssetId ||
+            ["payment assetId should be (", amountAssetIdString, ") or (", priceAssetIdString, ")"].makeString(" ").throw()
+    ]
+    let paymentAssetId = i.payments[0].assetId
+    let paymentAmount = i.payments[0].amount
+
+    let (sendAmount, feeAmount, sendAssetId, userRealPrice) = calcSendAmount(paymentAssetId, paymentAmount)
+    let sendActions = if (feeAmount <= 0) 
+        then [ ScriptTransfer(address, sendAmount, sendAssetId) ]
+        else "amount is too low".throw()
+
+    
+    (sendActions, (sendAmount, feeAmount, sendAssetId, userRealPrice))
+}
+
+### Callables ###
+@Callable(i)
+func swap() = {
+    swapInternal(i.caller, i)
+}
+
+@Callable(i)
+func swapFor(address: String) = {
+    swapInternal(address.addressFromStringValue(), i)
+}
