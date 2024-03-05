@@ -45,13 +45,13 @@ func calcRawSendAmount(initAmBal: Int, initPrBal: Int, paymentAmount: Int) = {
     sendAmount
 }
 
-func calcSendAmount(paymentAssetId: ByteVector|Unit, paymentAmount: Int) = {
+func calcSendAmount(paymentAssetId: ByteVector|Unit, paymentAmount: Int, readonly: Boolean) = {
     let (amAssetId, prAssetId) = if (paymentAssetId == amountAssetId) 
         then (priceAssetId, amountAssetId)
         else (amountAssetId, priceAssetId)
 
     let initAmBal = getAssetBalance(amAssetId)
-    let initPrBal = getAssetBalance(prAssetId) - paymentAmount
+    let initPrBal = getAssetBalance(prAssetId) - (if (readonly) then 0 else paymentAmount)
 
     let rawSendAmount = calcRawSendAmount(initAmBal, initPrBal, paymentAmount)
     let feeAmount = fraction(rawSendAmount, feeRate, SCALE8)
@@ -73,7 +73,7 @@ func swapInternal(address: Address, i: Invocation) = {
     let paymentAssetId = i.payments[0].assetId
     let paymentAmount = i.payments[0].amount
 
-    let (sendAmount, feeAmount, sendAssetId, userRealPrice) = calcSendAmount(paymentAssetId, paymentAmount)
+    let (sendAmount, feeAmount, sendAssetId, userRealPrice) = calcSendAmount(paymentAssetId, paymentAmount, false)
     let sendActions = if (feeAmount > 0) 
         then [ ScriptTransfer(address, sendAmount, sendAssetId) ]
         else "amount is too low".throw()
