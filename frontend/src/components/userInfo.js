@@ -7,12 +7,12 @@ export function UserInfo({ userData, config }) {
 
   function getBalance() {
     var usdtBal, wavesBal
-
+    
     nodeInteraction.assetBalance(config.usdt.id, userData.address, config.nodeUrl)
       .then(res => usdtBal = res)
-      .then(res => nodeInteraction.balanceDetails(userData.address, config.nodeUrl)
+      .then(() => nodeInteraction.balanceDetails(userData.address, config.nodeUrl)
         .then(res => wavesBal = res.effective))
-      .then(res => setBalance({
+      .then(() => setBalance({
         usdt: usdtBal / Math.pow(10, config.usdt.decimals),
         waves: wavesBal / Math.pow(10, config.waves.decimals),
       }))
@@ -24,7 +24,6 @@ export function UserInfo({ userData, config }) {
         <div>
           <div>Address: {userData.address}</div>
           <div>Public Key: {userData.publicKey}</div>
-          <br />
           <div>WAVES: {balance.waves}</div>
           <div>USDT: {balance.usdt}</div>
           <button onClick={getBalance}>Get balance</button>

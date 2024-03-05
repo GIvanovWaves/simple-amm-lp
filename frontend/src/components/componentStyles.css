@@ -1,5 +1,5 @@
 .main-form {
-    width: 350px;
+    line-height: 35px;
     padding: 10px;
 }
 
@@ -17,5 +17,10 @@
 }
 
 .user-info {
+    line-height: 25px;
     padding: 10px;
+}
+
+.form-inputs {
+    display: grid;
 }

@@ -15,9 +15,10 @@ export default function MyApp() {
 
   var config = {
     wxUrl: "https://wx.network",
-    nodeUrl: "https://nodes.wx.network",
+    // nodeUrl: "https://nodes.wx.network",
+    nodeUrl: "https://nodes-testnet.wx.network",
     explorer: "https://wavesexplorer.com",
-    dApp: "3PC6vbbRvhv1ojcJwfgPT61rgpgRC7jzvod",
+    dApp: "3N61RYWc9QuqKUwLvowpZZLpgUnqpQSFwLq",
     usdt: {
       id: "Atqv59EYzjFGuitKVnMRk6H8FukjoV3ktPorbEys25on",
       decimals: 6
