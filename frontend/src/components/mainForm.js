@@ -72,6 +72,7 @@ export function MainForm({ config, userData, signer }) {
       senderPublicKey: userData.publicKey,
     }
     signer.invoke(invokeTxData).broadcast()
+      .catch(e => console.log(e))
       .then((tx) => {
         if (Array.isArray(tx)) {
           setTxData(tx[0])

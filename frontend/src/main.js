@@ -1,14 +1,15 @@
-import React from 'react';
+import React from 'react'
 
-import { useState } from 'react';
-import { Signer } from '@waves/signer';
-import { ProviderWeb } from '@waves.exchange/provider-web';
-import { ProviderKeeper } from '@waves/provider-keeper';
-import { ProviderCloud } from '@waves.exchange/provider-cloud';
+import { useState } from 'react'
+import { Signer } from '@waves/signer'
+import { ProviderWeb } from '@waves.exchange/provider-web'
+import { ProviderKeeper } from '@waves/provider-keeper'
+import { ProviderCloud } from '@waves.exchange/provider-cloud'
+import { ProviderMetamask } from '@waves/provider-metamask'
 
-import { ProviderButton } from './components/providerButton';
-import { MainForm } from './components/mainForm';
-import { UserInfo } from './components/userInfo';
+import { ProviderButton } from './components/providerButton'
+import { MainForm } from './components/mainForm'
+import { UserInfo } from './components/userInfo'
 
 import './components/componentStyles.css'
 
@@ -37,6 +38,7 @@ export default function MyApp() {
   }
 
   const [signer, setSigner] = useState(null)
+  const [error, setError] = useState(null)
 
   function initSigner() {
     return new Signer({
@@ -47,9 +49,11 @@ export default function MyApp() {
   function loginSigner(signer) {
     signer.login()
       .then((acc) => {
+        setSigner(signer)
         setUserData({ address: acc.address, publicKey: acc.publicKey })
+        setError(null)
       })
-      .catch(err => console.log(err))
+      .catch(err => setError(err))
   }
 
   function initProviderWeb() {
@@ -58,7 +62,6 @@ export default function MyApp() {
     const signer = initSigner()
     signer.setProvider(providerWeb)
     loginSigner(signer)
-    setSigner(signer)
   }
 
   function initProviderCloud() {
@@ -67,7 +70,6 @@ export default function MyApp() {
     const signer = initSigner()
     signer.setProvider(providerCloud)
     loginSigner(signer)
-    setSigner(signer)
   }
 
   function initKeeper() {
@@ -75,7 +77,23 @@ export default function MyApp() {
     const signer = initSigner()
     signer.setProvider(providerKeeper)
     loginSigner(signer)
-    setSigner(signer)
+  }
+
+  function initMetamask() {
+    try {
+      const providerMetamask = new ProviderMetamask()
+      const signer = initSigner()
+      signer.setProvider(providerMetamask)
+      loginSigner(signer)
+    } catch {
+      setError('Metamask not found')
+    }
+  }
+
+  function Err() {
+    if (error) {
+      return <div className='Error'>{error}</div>
+    }
   }
 
   return (
@@ -84,7 +102,9 @@ export default function MyApp() {
         <ProviderButton providerName='WX' userData={userData} loginFunc={initProviderWeb} />
         <ProviderButton providerName='WX-EMAIL' userData={userData} loginFunc={initProviderCloud} />
         <ProviderButton providerName='KEEPER' userData={userData} loginFunc={initKeeper} />
+        <ProviderButton providerName='METAMASK' userData={userData} loginFunc={initMetamask} />
       </div>
+      <Err />
       <UserInfo userData={userData} config={config} />
       <MainForm config={config} userData={userData} signer={signer} />
     </div>

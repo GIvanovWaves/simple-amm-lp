@@ -7,6 +7,7 @@
     "@waves.exchange/provider-cloud": "^1.2.0",
     "@waves.exchange/provider-web": "^1.4.0",
     "@waves/provider-keeper": "^2.0.9",
+    "@waves/provider-metamask": "^1.1.6",
     "@waves/signer": "^1.1.0",
     "@waves/waves-transactions": "^4.3.11",
     "react": "^18.2.0",
