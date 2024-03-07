@@ -5,8 +5,8 @@ export function ProviderButton({ providerName, loginFunc, userData }) {
 
   if (userData.address == null) {
     return (
-      <div className="provider-element" onClick={loginFunc}>
-        <img className="provider-logo" alt={myAltText}></img>
+      <div className='provider-element' onClick={loginFunc}>
+        <img className='provider-logo' alt={myAltText}></img>
         <div>{providerName}</div>
       </div >
     );

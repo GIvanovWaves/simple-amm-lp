@@ -1,5 +1,5 @@
-import { nodeInteraction } from "@waves/waves-transactions"
-import { useEffect, useState } from "react"
+import { nodeInteraction } from '@waves/waves-transactions'
+import { useEffect, useState } from 'react'
 import './componentStyles.css'
 
 export function UserInfo({ userData, config }) {
@@ -27,7 +27,7 @@ export function UserInfo({ userData, config }) {
 
   if (userData.address) {
     return (
-      <div className="user-info">
+      <div className='user-info'>
         <div>
           <div>Address: {userData.address}</div>
           <div>Public Key: {userData.publicKey}</div>
