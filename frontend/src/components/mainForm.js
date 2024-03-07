@@ -15,8 +15,7 @@ export function MainForm({ config, userData, signer }) {
   function getEvaluate(amountRaw, token) {
     const amount = parseInt(amountRaw * Math.pow(10, token.decimals))
     const reqUrl = `${config.nodeUrl}/utils/script/evaluate/${config.dApp}`
-    const idString = token.id ? `\\"${token.id}\\"` : 'unit'
-    const expr = `{"expr": "calcSendAmount(${idString}, ${amount}, true)"}`
+    const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${amount})"}`
     const reqOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -26,7 +25,7 @@ export function MainForm({ config, userData, signer }) {
       .then(res => {
         return res.json().then(json => {
           let getAmount = json.result.value._1.value
-          let price = json.result.value._4.value
+          let price = json.result.value._2.value
           return { getAmount, price }
         })
       })

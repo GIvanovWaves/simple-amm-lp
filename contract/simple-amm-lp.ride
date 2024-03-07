@@ -81,6 +81,15 @@ func swapInternal(address: Address, i: Invocation) = {
     (sendActions, (sendAmount, feeAmount, sendAssetId, userRealPrice))
 }
 
+
+### Readonly function
+func calcSendAmountREADONLY(paymentAssetString: String, paymentAmount: Int) = {
+    let (sendAmount, feeAmount, amAssetId, userRealPrice) = calcSendAmount(paymentAssetString.getAssetId(), paymentAmount, true)
+
+    (sendAmount, userRealPrice, amAssetId)
+}
+
+
 ### Callables ###
 @Callable(i)
 func swap() = {

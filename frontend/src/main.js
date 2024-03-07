@@ -31,7 +31,7 @@ export default function MyApp() {
       ticker: 'USDT',
     },
     waves: {
-      id: null,
+      id: 'WAVES',
       decimals: 8,
       ticker: 'WAVES',
     }
