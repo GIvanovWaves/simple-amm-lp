@@ -1,5 +1,5 @@
 import { nodeInteraction } from "@waves/waves-transactions"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import './componentStyles.css'
 
 export function UserInfo({ userData, config }) {
@@ -19,6 +19,12 @@ export function UserInfo({ userData, config }) {
       }))
   }
 
+  useEffect(() => {
+    if(userData.address) {
+      getBalance()
+    }
+  }, [userData])
+
   if (userData.address) {
     return (
       <div className="user-info">
@@ -27,7 +33,7 @@ export function UserInfo({ userData, config }) {
           <div>Public Key: {userData.publicKey}</div>
           <div>WAVES: {balance.waves}</div>
           <div>USDT: {balance.usdt}</div>
-          <button onClick={getBalance}>Get balance</button>
+          <button onClick={getBalance}>Update balance</button>
         </div>
       </div >
     );
