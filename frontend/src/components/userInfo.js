@@ -3,11 +3,12 @@ import { useState } from "react"
 import './componentStyles.css'
 
 export function UserInfo({ userData, config }) {
-  const [balance, setBalance] = useState({ usdt: 0, waves: 0 })
+  const [balance, setBalance] = useState({ usdt: 'X', waves: 'X' })
 
   function getBalance() {
     var usdtBal, wavesBal
     
+    setBalance({ usdt: 'Loading...', waves: 'Loading...'})
     nodeInteraction.assetBalance(config.usdt.id, userData.address, config.nodeUrl)
       .then(res => usdtBal = res)
       .then(() => nodeInteraction.balanceDetails(userData.address, config.nodeUrl)

@@ -7,63 +7,83 @@ export function MainForm({ config }) {
   const [price, setPriceValue] = useState(0)
   const [amount, setAmount] = useState(1)
   const [priceAmount, setPriceAmount] = useState(0)
+  const [assets, setAssets] = useState({ amount: config.waves, price: config.usdt })
 
-  async function getPrice(amountRaw, decimals) {
-    const amount = amountRaw * Math.pow(10, decimals)
+  function getEvaluate(amountRaw, token) {
+    const amount = parseInt(amountRaw * Math.pow(10, token.decimals))
     const reqUrl = `${config.nodeUrl}/utils/script/evaluate/${config.dApp}`
-    const expr = `{"expr": "calcSendAmount(unit, ${amount}, true)"}`
+    const idString = token.id ? `\\"${token.id}\\"` : "unit"
+    const expr = `{"expr": "calcSendAmount(${idString}, ${amount}, true)"}`
     const reqOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: expr,
     }
-    let data = await fetch(reqUrl, reqOptions)
-      .then(async res => {
-        const json = await res.json()
-        let getAmount = json.result.value._1.value
-        let price = json.result.value._4.value
-        return { getAmount, price }
+    return fetch(reqUrl, reqOptions)
+      .then(res => {
+        return res.json().then(json => {
+          let getAmount = json.result.value._1.value
+          let price = json.result.value._4.value
+          return { getAmount, price }
+        })
       })
-    return data
   }
 
-  async function calcFromAmount(amount) {
-    let data = await getPrice(amount, config.waves.decimals)
-    setPriceAmount(data.getAmount / Math.pow(10, config.usdt.decimals))
-    setPriceValue(data.price / Math.pow(10, config.usdt.decimals))
+  function calcFromAmount(amount) {
+    if (!Number.isNaN(Number(amount)) && !Number(amount) == 0) {
+      setPriceAmount('Loading...')
+      setPriceValue('Loading...')
+      getEvaluate(amount, assets.amount).then((data) => {
+        setPriceAmount(data.getAmount / Math.pow(10, assets.price.decimals))
+        setPriceValue(data.price / Math.pow(10, 6))
+      })
+    } else {
+      setPriceAmount(NaN)
+      setPriceValue(NaN)
+    }
+  }
+
+  function sellWaves() {
+    setAssets({ amount: config.waves, price: config.usdt })
+  }
+
+  function buyWaves() {
+    setAssets({ amount: config.usdt, price: config.waves })
   }
 
   useEffect(() => {
-    const timeOutId = setTimeout(() => calcFromAmount(amount), 500);
+    const timeOutId = setTimeout(() => { calcFromAmount(amount) }, 500);
     return () => clearTimeout(timeOutId);
-  }, [amount])
+  }, [amount, assets])
 
   return (
     <div className="main-form">
       <div>
         dApp: <a href={link} target="_blank">{config.dApp}</a>
       </div>
+      <button
+        className='select-button'
+        onClick={sellWaves}
+      >Sell Waves</button>
+      <button
+        className='select-button'
+        onClick={buyWaves}
+      >Buy Waves</button>
       <div>
         Price: {price}
       </div>
       <div className='form-inputs'>
-        <label>Waves:       
+        <div>Send:
           <input
             autoComplete='false'
             id="amount-input"
             className="form-input"
             value={amount}
             onChange={e => setAmount(e.target.value)}
-          />
-        </label>
-        <label>USDT: 
-          <input
-            id="price-input"
-            className="form-input"
-            value={priceAmount}
-            readOnly
-          />
-        </label>
+          /> {assets.amount.ticker}
+        </div>
+        <div>Get: {priceAmount.toString()} {assets.price.ticker}
+        </div>
       </div>
     </div>
   );

@@ -10,8 +10,8 @@
 
 .provider-element {
     float: left;
-    width: 150px;
-    height: 80px;
+    width: 80px;
+    height: 90px;
     border: 2px dotted brown;
     padding: 10px;
 }
@@ -23,4 +23,15 @@
 
 .form-inputs {
     display: grid;
+}
+.form-input {
+    margin: 5px;
+}
+
+.main {
+    display: grid;
+}
+
+.select-button {
+    margin: 5px;
 }

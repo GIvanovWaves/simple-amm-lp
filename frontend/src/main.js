@@ -10,21 +10,28 @@ import { ProviderButton } from "./components/providerButton";
 import { MainForm } from "./components/mainForm";
 import { UserInfo } from "./components/userInfo";
 
+import './components/componentStyles.css'
+
 export default function MyApp() {
   const [userData, setUserData] = useState({ address: null, publicKey: null })
 
   var config = {
-    wxUrl: "https://wx.network",
+    // wxUrl: "https://wx.network",
+    wxUrl: "https://testnet.wx.network",
     // nodeUrl: "https://nodes.wx.network",
     nodeUrl: "https://nodes-testnet.wx.network",
     explorer: "https://wavesexplorer.com",
     dApp: "3N61RYWc9QuqKUwLvowpZZLpgUnqpQSFwLq",
     usdt: {
-      id: "Atqv59EYzjFGuitKVnMRk6H8FukjoV3ktPorbEys25on",
-      decimals: 6
+      // id: "Atqv59EYzjFGuitKVnMRk6H8FukjoV3ktPorbEys25on",
+      id: "25FEqEjRkqK6yCkiT7Lz6SAYz7gUFCtxfCChnrVFD5AT",
+      decimals: 6,
+      ticker: 'USDT',
     },
     waves: {
-      decimals: 8
+      id: null,
+      decimals: 8,
+      ticker: 'WAVES',
     }
   }
 
@@ -62,9 +69,11 @@ export default function MyApp() {
   }
 
   return (
-    <div>
-      <ProviderButton providerName="WEB" userData={userData} loginFunc={initProviderWeb} />
-      <ProviderButton providerName="KEEPER" userData={userData} loginFunc={initKeeper} />
+    <div className="main">
+      <div className="providers-block">
+        <ProviderButton providerName="WEB" userData={userData} loginFunc={initProviderWeb} />
+        <ProviderButton providerName="KEEPER" userData={userData} loginFunc={initKeeper} />
+      </div>
       <UserInfo userData={userData} config={config} />
       <MainForm config={config} />
     </div>
