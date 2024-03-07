@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Signer } from '@waves/signer';
 import { ProviderWeb } from '@waves.exchange/provider-web';
 import { ProviderKeeper } from '@waves/provider-keeper';
-// import { ProviderCloud } from '@waves.exchange/provider-cloud';
+import { ProviderCloud } from '@waves.exchange/provider-cloud';
 
 import { ProviderButton } from './components/providerButton';
 import { MainForm } from './components/mainForm';
@@ -61,6 +61,15 @@ export default function MyApp() {
     setSigner(signer)
   }
 
+  function initProviderCloud() {
+    const wxUrlObj = new URL(config.wxUrl)
+    const providerCloud = new ProviderCloud(wxUrlObj.origin + '/signer-cloud' + wxUrlObj.search)
+    const signer = initSigner()
+    signer.setProvider(providerCloud)
+    loginSigner(signer)
+    setSigner(signer)
+  }
+
   function initKeeper() {
     const providerKeeper = new ProviderKeeper()
     const signer = initSigner()
@@ -72,7 +81,8 @@ export default function MyApp() {
   return (
     <div className='main'>
       <div className='providers-block'>
-        <ProviderButton providerName='WEB' userData={userData} loginFunc={initProviderWeb} />
+        <ProviderButton providerName='WX' userData={userData} loginFunc={initProviderWeb} />
+        <ProviderButton providerName='WX-EMAIL' userData={userData} loginFunc={initProviderCloud} />
         <ProviderButton providerName='KEEPER' userData={userData} loginFunc={initKeeper} />
       </div>
       <UserInfo userData={userData} config={config} />
