@@ -8,14 +8,15 @@ export function MainForm({ config, userData, signer }) {
   const [inputAmount, setInputAmount] = useState(1)
   const [rawSendAmount, setRawSendAmount] = useState(1)
   const [rawGetAmount, setRawGetAmount] = useState(0)
-  const [getAmount, setGetAmount] = useState(0)
   const [assets, setAssets] = useState({ amount: config.waves, price: config.usdt })
   const [txData, setTxData] = useState(null)
+  const [slippage, setSlippage] = useState(0)
+  const [rawGetWithSlippage, setRawGetWithSlippage] = useState(0)
 
   function getEvaluate(amountRaw, token) {
-    const amount = parseInt(amountRaw * Math.pow(10, token.decimals))
+    const sendAmount = parseInt(amountRaw * Math.pow(10, token.decimals))
     const reqUrl = `${config.nodeUrl}/utils/script/evaluate/${config.dApp}`
-    const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${amount})"}`
+    const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${sendAmount})"}`
     const reqOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -26,24 +27,26 @@ export function MainForm({ config, userData, signer }) {
         return res.json().then(json => {
           let getAmount = json.result.value._1.value
           let price = json.result.value._2.value
-          return { getAmount, price }
+          return { sendAmount, getAmount, price }
         })
       })
   }
 
   function calcFromAmount(amount) {
     if (Number(amount) > 0) {
-      setGetAmount('Loading...')
+      setRawGetAmount('Loading...')
       setPriceValue('Loading...')
+      setRawGetWithSlippage('Loading...')
       getEvaluate(amount, assets.amount).then((data) => {
+        setRawSendAmount(data.sendAmount)
+        setRawGetWithSlippage(parseInt(data.getAmount * (1 - parseFloat(slippage))))
         setRawGetAmount(data.getAmount)
-        setRawSendAmount(amount * Math.pow(10, assets.amount.decimals))
-        setGetAmount(data.getAmount / Math.pow(10, assets.price.decimals))
         setPriceValue(data.price / Math.pow(10, 6))
       })
     } else {
-      setGetAmount(NaN)
       setPriceValue(NaN)
+      setRawGetAmount(NaN)
+      setRawGetWithSlippage(NaN)
     }
   }
 
@@ -62,7 +65,7 @@ export function MainForm({ config, userData, signer }) {
       call: {
         function: 'swapNoLess',
         args: [
-          { type: 'integer', value: parseInt(rawGetAmount) }
+          { type: 'integer', value: parseInt(rawGetWithSlippage) }
         ]
       },
       payment: [
@@ -84,7 +87,7 @@ export function MainForm({ config, userData, signer }) {
   useEffect(() => {
     const timeOutId = setTimeout(() => { calcFromAmount(inputAmount) }, 500);
     return () => clearTimeout(timeOutId);
-  }, [inputAmount, assets])
+  }, [inputAmount, assets, slippage])
 
   function TxId({ txData }) {
     if (txData) {
@@ -122,10 +125,21 @@ export function MainForm({ config, userData, signer }) {
             onChange={e => setInputAmount(e.target.value)}
           /> {assets.amount.ticker}
         </div>
-        <div>Get: {getAmount.toString()} {assets.price.ticker}</div>
+        <div>Get: {(rawGetAmount / Math.pow(10, assets.price.decimals)).toString()} {assets.price.ticker}</div>
+        <div>Get at least: {(rawGetWithSlippage / Math.pow(10, assets.price.decimals)).toString()} {assets.price.ticker}</div>
+        <div>Slippage:
+          <select
+            className='form-input'
+            onChange={e => setSlippage(e.target.value)}>
+            <option value={0}>0%</option>
+            <option value={0.005}>0.5%</option>
+            <option value={0.01}>1%</option>
+            <option value={0.02}>2%</option>
+          </select>
+        </div>
         <button
           className='select-button'
-          disabled={!(Number(getAmount) > 0) || !userData.address}
+          disabled={!(Number(rawGetWithSlippage) > 0) || !userData.address}
           onClick={swap}
         >Swap</button>
         <TxId txData={txData} />

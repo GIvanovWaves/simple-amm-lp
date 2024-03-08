@@ -25,6 +25,7 @@
     display: grid;
 }
 .form-input {
+    width: 120px;
     margin: 5px;
 }
 
