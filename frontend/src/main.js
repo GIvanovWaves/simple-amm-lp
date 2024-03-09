@@ -98,11 +98,27 @@ export default function MyApp() {
 
   return (
     <div className='main'>
-      <div className='providers-block'>
-        <ProviderButton providerName='WX' userData={userData} loginFunc={initProviderWeb} />
-        <ProviderButton providerName='WX-EMAIL' userData={userData} loginFunc={initProviderCloud} />
-        <ProviderButton providerName='KEEPER' userData={userData} loginFunc={initKeeper} />
-        <ProviderButton providerName='METAMASK' userData={userData} loginFunc={initMetamask} />
+      <div className={userData.address ? '' : 'providers-block'}>
+        <ProviderButton
+          providerName='WX'
+          logoPath='./imgs/wx-seed.png'
+          userData={userData}
+          loginFunc={initProviderWeb} />
+        <ProviderButton
+          providerName='WX-EMAIL'
+          logoPath='./imgs/wx-email.png'
+          userData={userData}
+          loginFunc={initProviderCloud} />
+        <ProviderButton
+          providerName='KEEPER'
+          logoPath='./imgs/keeper.png'
+          userData={userData}
+          loginFunc={initKeeper} />
+        <ProviderButton
+          providerName='METAMASK'
+          logoPath='./imgs/metamask.png'
+          userData={userData}
+          loginFunc={initMetamask} />
       </div>
       <Err />
       <UserInfo userData={userData} config={config} />

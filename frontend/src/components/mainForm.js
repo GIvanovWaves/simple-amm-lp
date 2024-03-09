@@ -34,9 +34,6 @@ export function MainForm({ config, userData, signer }) {
 
   function calcFromAmount(amount) {
     if (Number(amount) > 0) {
-      setRawGetAmount('Loading...')
-      setPriceValue('Loading...')
-      setRawGetWithSlippage('Loading...')
       getEvaluate(amount, assets.amount).then((data) => {
         setRawSendAmount(data.sendAmount)
         setRawGetWithSlippage(parseInt(data.getAmount * (1 - parseFloat(slippage))))
@@ -85,6 +82,9 @@ export function MainForm({ config, userData, signer }) {
   }
 
   useEffect(() => {
+    setPriceValue('Loading...')
+    setRawGetAmount(0)
+    setRawGetWithSlippage(0)
     const timeOutId = setTimeout(() => { calcFromAmount(inputAmount) }, 500);
     return () => clearTimeout(timeOutId);
   }, [inputAmount, assets, slippage])
@@ -113,13 +113,12 @@ export function MainForm({ config, userData, signer }) {
         onClick={buyWaves}
       >Buy Waves</button>
       <div>
-        Price: {price}
+        Price: {price} {config.usdt.ticker}
       </div>
       <div className='form-inputs'>
         <div>Send:
           <input
             autoComplete='false'
-            id='amount-input'
             className='form-input'
             value={inputAmount}
             onChange={e => setInputAmount(e.target.value)}
