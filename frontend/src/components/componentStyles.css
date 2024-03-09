@@ -5,6 +5,7 @@
 }
 
 .providers-block {
+    overflow: auto;
     border: 2pt dotted brown;
     line-height: 25pt;
     padding: 10pt;
@@ -36,22 +37,18 @@
     padding: 10pt;
 }
 
-.form-inputs {
-    display: grid;
-}
-
 .form-input {
     width: 120pt;
     margin: 5pt;
 }
 
 .main {
-    display: grid;
-    justify-content: space-evenly;
-    margin-top: 30pt;
+    margin-top: 3%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .select-button {
-    margin: 5px;
+    margin: 5pt;
     width: 130pt;
 }
