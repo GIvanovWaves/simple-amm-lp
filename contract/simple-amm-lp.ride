@@ -7,6 +7,7 @@
 let amountAssetIdKey = "amountAssetId"
 let priceAssetIdKey  = "priceAssetId"
 let feeRateKey       = "feeRate"
+let forceStopKey     = "forceStop"
 
 
 ### Helper functions ###
@@ -31,29 +32,31 @@ let priceAssetId = getAssetId(priceAssetIdString)
 let SCALE8 = 1_0000_0000
 let feeRate = this.getInteger(feeRateKey).valueOrElse(20_0000) # 0.2%
 
+let isForceStopped = this.getBoolean(forceStopKey).valueOrElse(false)
+
 
 ### Functions ###
 func calcPrice() = {
     fraction(getAssetBalance(priceAssetId), SCALE8, getAssetBalance(amountAssetId))
 }
 
-func calcRawSendAmount(initAmBal: Int, initPrBal: Int, paymentAmount: Int) = {
-    let newPrBal = initPrBal + paymentAmount
-    let newAmBal = fraction(initAmBal, initPrBal, newPrBal)
-    let sendAmount = initAmBal - newAmBal
+func calcRawSendAmount(asset1InitBalance: Int, asset2InitBalance: Int, asset2PaymentAmount: Int) = {
+    let newAsset2Balance = asset2InitBalance + asset2PaymentAmount
+    let newAsset1Balance = fraction(asset1InitBalance, asset2InitBalance, newAsset2Balance)
+    let sendAmount = asset1InitBalance - newAsset1Balance
 
     sendAmount
 }
 
 func calcSendAmount(paymentAssetId: ByteVector|Unit, paymentAmount: Int, readonly: Boolean) = {
-    let (amAssetId, prAssetId) = if (paymentAssetId == amountAssetId) 
+    let (asset1AssetId, asset2AssetId) = if (paymentAssetId == amountAssetId) 
         then (priceAssetId, amountAssetId)
         else (amountAssetId, priceAssetId)
 
-    let initAmBal = getAssetBalance(amAssetId)
-    let initPrBal = getAssetBalance(prAssetId) - (if (readonly) then 0 else paymentAmount)
+    let asset1InitBalance = getAssetBalance(asset1AssetId)
+    let asset2InitBalance = getAssetBalance(asset2AssetId) - (if (readonly) then 0 else paymentAmount)
 
-    let rawSendAmount = calcRawSendAmount(initAmBal, initPrBal, paymentAmount)
+    let rawSendAmount = calcRawSendAmount(asset1InitBalance, asset2InitBalance, paymentAmount)
     let feeAmount = fraction(rawSendAmount, feeRate, SCALE8)
     let sendAmount = rawSendAmount - feeAmount
 
@@ -61,11 +64,12 @@ func calcSendAmount(paymentAssetId: ByteVector|Unit, paymentAmount: Int, readonl
         then fraction(sendAmount, SCALE8, paymentAmount)
         else fraction(paymentAmount, SCALE8, sendAmount)
 
-    (sendAmount, feeAmount, amAssetId, userRealPrice)
+    (sendAmount, feeAmount, asset1AssetId, userRealPrice)
 }
 
 func swapInternal(address: Address, i: Invocation) = {
     strict checks = [
+        !isForceStopped || "contract is temporary stopped".throw(),
         i.payments.size() > 0 || "should be with 1 payment".throw(),
         [amountAssetId, priceAssetId].containsElement(i.payments[0].assetId) ||
             ["payment assetId should be", amountAssetIdString, "or", priceAssetIdString].makeString(" ").throw()
@@ -109,4 +113,13 @@ func swapNoLess(minAmount: Int) = {
 @Callable(i)
 func swapFor(address: String) = {
     swapInternal(address.addressFromStringValue(), i)
+}
+
+@Callable(i)
+func forceStop(stopFlag: Boolean) = {
+    strict checks = [
+        i.caller == this || "permission denied".throw()
+    ]
+
+    [BooleanEntry(forceStopKey, stopFlag)]
 }
