@@ -12,6 +12,7 @@ export function MainForm({ config, userData, signer }) {
   const [txData, setTxData] = useState(null)
   const [slippage, setSlippage] = useState(0)
   const [rawGetWithSlippage, setRawGetWithSlippage] = useState(0)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   function getEvaluate(amountRaw, token) {
     const sendAmount = parseInt(amountRaw * Math.pow(10, token.decimals))
@@ -30,6 +31,10 @@ export function MainForm({ config, userData, signer }) {
           return { sendAmount, getAmount, price }
         })
       })
+      .catch((e) => {
+        setErrorMessage(e.message)
+        return { sendAmount: NaN, getAmount: NaN, price: NaN }
+      })
   }
 
   function calcFromAmount(amount) {
@@ -41,6 +46,7 @@ export function MainForm({ config, userData, signer }) {
         setPriceValue(data.price / Math.pow(10, 6))
       })
     } else {
+      setRawSendAmount(NaN)
       setPriceValue(NaN)
       setRawGetAmount(NaN)
       setRawGetWithSlippage(NaN)
@@ -57,6 +63,7 @@ export function MainForm({ config, userData, signer }) {
 
   function swap() {
     setTxData(null)
+    setErrorMessage(null)
     const invokeTxData = {
       dApp: config.dApp,
       call: {
@@ -71,7 +78,10 @@ export function MainForm({ config, userData, signer }) {
       senderPublicKey: userData.publicKey,
     }
     signer.invoke(invokeTxData).broadcast()
-      .catch(e => console.log(e))
+      .catch((e) => {
+        console.log(e)
+        setErrorMessage(e.message)
+      })
       .then((tx) => {
         if (Array.isArray(tx)) {
           setTxData(tx[0])
@@ -95,6 +105,14 @@ export function MainForm({ config, userData, signer }) {
 
       return <div>
         TX: <a href={explorerUrl} target='_blank'>{txData.id}</a>
+      </div>
+    }
+  }
+
+  function ErrorBlock() {
+    if (errorMessage) {
+      return <div>
+        Error: {errorMessage}
       </div>
     }
   }
@@ -142,6 +160,7 @@ export function MainForm({ config, userData, signer }) {
           onClick={swap}
         >Swap</button>
         <TxId txData={txData} />
+        <ErrorBlock />
       </div>
     </div>
   );
