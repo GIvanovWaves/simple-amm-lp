@@ -25,10 +25,14 @@ export function MainForm({ config, userData, signer }) {
     }
     return fetch(reqUrl, reqOptions)
       .then(res => {
+        setErrorMessage(null)
         return res.json().then(json => {
           let getAmount = json.result.value._1.value
           let price = json.result.value._2.value
           return { sendAmount, getAmount, price }
+        }).catch((e) => {
+          setErrorMessage(e.message)
+          return { sendAmount: NaN, getAmount: NaN, price: NaN }
         })
       })
       .catch((e) => {
