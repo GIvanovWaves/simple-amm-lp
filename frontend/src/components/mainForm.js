@@ -20,6 +20,7 @@ export function MainForm({ config, userData, signer }) {
     const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${sendAmount})"}`
     const headers = new Headers()
     headers.append('Content-Type', 'application/json')
+    headers.append('Access-Control-Allow-Origin', '*')
     headers.append('Accept', 'application/json')
     const reqOptions = {
       method: 'POST',
