@@ -18,9 +18,12 @@ export function MainForm({ config, userData, signer }) {
     const sendAmount = parseInt(amountRaw * Math.pow(10, token.decimals))
     const reqUrl = `${config.nodeUrl}/utils/script/evaluate/${config.dApp}`
     const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${sendAmount})"}`
+    const headers = new Headers()
+    headers.append('Content-Type', 'application/json')
+    headers.append('accept', 'application/json')
     const reqOptions = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: expr,
     }
     return fetch(reqUrl, reqOptions)
