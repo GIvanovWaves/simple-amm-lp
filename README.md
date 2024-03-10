@@ -9,7 +9,7 @@ Contract uses Uniswap [CFMM](https://en.wikipedia.org/wiki/Constant_function_mar
 
 Contract: [XXX](https://wavesexplorer.com/addresses/XXX)
 
-Frontend: [XXX](htttps://pages.github.com)
+Frontend: [Simple-AMM-LP](https://givanovwaves.github.io/simple-amm-lp/)
 
 | asset                                                                                 |                                        assetId |
 | :------------------------------------------------------------------------------------ | ---------------------------------------------: |

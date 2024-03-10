@@ -20,7 +20,7 @@ export default function MyApp() {
     // wxUrl: 'https://wx.network',
     wxUrl: 'https://testnet.wx.network',
     // nodeUrl: 'https://nodes.wx.network',
-    nodeUrl: 'https://nodes-testnet.wx.network',
+    nodeUrl: 'https://nodes-testnet.wavesnodes.com',
     explorerUrl: 'https://wavesexplorer.com',
     network: 'testnet',
     dApp: '3N61RYWc9QuqKUwLvowpZZLpgUnqpQSFwLq',

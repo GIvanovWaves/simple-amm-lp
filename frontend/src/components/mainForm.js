@@ -17,15 +17,16 @@ export function MainForm({ config, userData, signer }) {
   function getEvaluate(amountRaw, token) {
     const sendAmount = parseInt(amountRaw * Math.pow(10, token.decimals))
     const reqUrl = `${config.nodeUrl}/utils/script/evaluate/${config.dApp}`
-    const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${sendAmount})"}`
+    const exprJ = {
+      expr: `calcSendAmountREADONLY(\"${assets.amount.id}\", ${sendAmount})`
+    }
     const headers = new Headers()
     headers.append('Content-Type', 'application/json')
-    headers.append('Access-Control-Allow-Origin', '*')
     headers.append('Accept', 'application/json')
     const reqOptions = {
       method: 'POST',
       headers,
-      body: expr,
+      body: JSON.stringify(exprJ),
     }
 
     return fetch(reqUrl, reqOptions)
@@ -36,11 +37,13 @@ export function MainForm({ config, userData, signer }) {
           let price = json.result.value._2.value
           return { sendAmount, getAmount, price }
         }).catch((e) => {
+          console.log("res.json()", e)
           setErrorMessage(e.message)
           return { sendAmount: NaN, getAmount: NaN, price: NaN }
         })
       })
       .catch((e) => {
+        console.log("fetch", e)
         setErrorMessage(e.message)
         return { sendAmount: NaN, getAmount: NaN, price: NaN }
       })
