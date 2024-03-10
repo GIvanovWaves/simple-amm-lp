@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import './componentStyles.css'
 
@@ -20,12 +20,13 @@ export function MainForm({ config, userData, signer }) {
     const expr = `{"expr": "calcSendAmountREADONLY(\\"${assets.amount.id}\\", ${sendAmount})"}`
     const headers = new Headers()
     headers.append('Content-Type', 'application/json')
-    headers.append('accept', 'application/json')
+    headers.append('Accept', 'application/json')
     const reqOptions = {
       method: 'POST',
       headers,
       body: expr,
     }
+
     return fetch(reqUrl, reqOptions)
       .then(res => {
         setErrorMessage(null)
