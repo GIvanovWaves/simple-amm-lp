@@ -17,18 +17,15 @@ export default function MyApp() {
   const [userData, setUserData] = useState({ address: null, publicKey: null })
 
   var config = {
-    // wxUrl: 'https://wx.network',
-    wxUrl: 'https://testnet.wx.network',
-    // nodeUrl: 'https://nodes.wx.network',
-    nodeUrl: 'https://nodes-testnet.wavesnodes.com',
+    wxUrl: 'https://wx.network',
+    nodeUrl: 'https://nodes.wavesnodes.com',
     explorerUrl: 'https://wavesexplorer.com',
-    network: 'testnet',
-    dApp: '3N61RYWc9QuqKUwLvowpZZLpgUnqpQSFwLq',
+    network: 'mainnet',
+    dApp: '3PPvHcJjESoUbf9LDpAxEhQKUnpqH1Ea29h',
     usdt: {
-      // id: 'Atqv59EYzjFGuitKVnMRk6H8FukjoV3ktPorbEys25on',
-      id: '25FEqEjRkqK6yCkiT7Lz6SAYz7gUFCtxfCChnrVFD5AT',
+      id: '9wc3LXNA4TEBsXyKtoLE9mrbDD7WMHXvXrCjZvabLAsi',
       decimals: 6,
-      ticker: 'USDT',
+      ticker: 'USDT-ERC20',
     },
     waves: {
       id: 'WAVES',

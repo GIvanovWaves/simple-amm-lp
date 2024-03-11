@@ -7,7 +7,7 @@ Without bell and whistles, it just works.
 Contract uses Uniswap [CFMM](https://en.wikipedia.org/wiki/Constant_function_market_maker) formula.
 
 
-Contract: [XXX](https://wavesexplorer.com/addresses/XXX)
+Contract: [3PPvHcJjESoUbf9LDpAxEhQKUnpqH1Ea29h](https://wavesexplorer.com/addresses/3PPvHcJjESoUbf9LDpAxEhQKUnpqH1Ea29h)
 
 Frontend: [Simple-AMM-LP](https://givanovwaves.github.io/simple-amm-lp/)
 
