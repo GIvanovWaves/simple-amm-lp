@@ -11,10 +11,10 @@ Contract: [3PPvHcJjESoUbf9LDpAxEhQKUnpqH1Ea29h](https://wavesexplorer.com/addres
 
 Frontend: [Simple-AMM-LP](https://givanovwaves.github.io/simple-amm-lp/)
 
-| asset                                                                                 |                                        assetId |
-| :------------------------------------------------------------------------------------ | ---------------------------------------------: |
-| [WAVES](https://wavesexplorer.com/assets/WAVES)                                       |                                        `WAVES` |
-| [USDT](https://wavesexplorer.com/assets/G5WWWzzVsWRyzGf32xojbnfp7gXbWrgqJT8RcVWEfLmC) | `G5WWWzzVsWRyzGf32xojbnfp7gXbWrgqJT8RcVWEfLmC` |
+| asset                                                                                           | assetId                                        |
+| :---------------------------------------------------------------------------------------------- | :--------------------------------------------- |
+| [WAVES](https://wavesexplorer.com/assets/WAVES)                                                 | `WAVES`                                        |
+| [USDT-ERC20-PPT](https://wavesexplorer.com/assets/9wc3LXNA4TEBsXyKtoLE9mrbDD7WMHXvXrCjZvabLAsi) | `9wc3LXNA4TEBsXyKtoLE9mrbDD7WMHXvXrCjZvabLAsi` |
 
 
 ## Why?
