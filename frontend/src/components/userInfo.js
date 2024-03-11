@@ -31,8 +31,8 @@ export function UserInfo({ userData, config }) {
         <div>
           <div>Address: {userData.address}</div>
           <div>Public Key: {userData.publicKey}</div>
-          <div>WAVES: {balance.waves}</div>
-          <div>USDT: {balance.usdt}</div>
+          <div>{config.waves.ticker}: {balance.waves}</div>
+          <div>{config.usdt.ticker}: {balance.usdt}</div>
           <button onClick={getBalance}>Update balance</button>
         </div>
       </div >
