@@ -1,0 +1,86 @@
+{-# STDLIB_VERSION 6 #-}
+{-# CONTENT_TYPE DAPP #-}
+{-# SCRIPT_TYPE ACCOUNT #-}
+
+let wxPoolAddress = Address(base58'3PPeWowdyQLKwW9AExN5CgFa7X9ts7D4LkM')
+let simpleAmmAddress = Address(base58'3PPvHcJjESoUbf9LDpAxEhQKUnpqH1Ea29h')
+let waves = unit
+let usdt = base58'9wc3LXNA4TEBsXyKtoLE9mrbDD7WMHXvXrCjZvabLAsi'
+let lp = base58'6KWpnpLk6GNh5HG9ct9pNDCYFWJBoAAshZsp4D8jcFpV'
+
+func getBalance(id: ByteVector|Unit) = {
+  match (id) {
+    case b:ByteVector => this.assetBalance(b)
+    case _ => this.wavesBalance().available
+  }
+}
+
+func assetToString(id: ByteVector|Unit) = {
+  match (id) {
+    case b:ByteVector => b.toBase58String()
+    case _ => "WAVES"
+  }
+}
+
+func swapWx(asset: ByteVector|Unit, amount: Int) = {
+  let receiveAssetString = if (asset == unit) then usdt.toBase58String() else "WAVES"
+
+  strict initLPBalance = lp.getBalance()
+  strict inv1 = invoke(wxPoolAddress, "putOneTkn", [1, false], [AttachedPayment(asset, amount)])
+  strict lpReceived = lp.getBalance() - initLPBalance
+  
+  strict inv2 = invoke(wxPoolAddress, "getOneTkn", [receiveAssetString, 1], [AttachedPayment(lp, lpReceived)])
+  unit
+}
+
+func arbitrage(sendAsset: ByteVector|Unit, amount: Int, minProfit: Int) = {
+  let receiveAsset = if (sendAsset == unit) then usdt else unit
+
+  strict initSendBalance = sendAsset.getBalance()
+  strict initReceiveBalance = receiveAsset.getBalance()
+
+  strict inv1 = invoke(simpleAmmAddress, "swap", [], [AttachedPayment(sendAsset, amount)])
+  strict received = receiveAsset.getBalance() - initReceiveBalance
+
+  strict inv2 = swapWx(receiveAsset, received)
+  strict profit = sendAsset.getBalance() - initSendBalance
+
+  if (profit > minProfit)
+    then []
+    else [
+        "no profit", 
+        sendAsset.assetToString(),
+        amount.toString(),
+        minProfit.toString(),
+        profit.toString()
+      ].makeString(" ").throw()
+}
+
+@Callable(i)
+func sw(amount: Int, minProfit: Int) = {
+  strict check = i.caller == this || throw("permission denied")
+
+  arbitrage(waves, amount, minProfit)
+}
+
+@Callable(i)
+func su(amount: Int, minProfit: Int) = {
+  strict check = i.caller == this || throw("permission denied")
+
+  arbitrage(usdt, amount, minProfit)
+}
+
+@Callable(i)
+func suu(amount: Int, minProfit: Int) = {
+  strict check = i.caller == this || throw("permission denied")
+
+  let res = invoke(simpleAmmAddress, "swapREADONLY", ["WAVES", amount], [])
+  let newAmount = match(res) {
+    case r:(Int, Int, ByteVector) => r._1
+    case _ => throw("something wrong")
+  }
+
+  let newMinProfit = fraction(minProfit, newAmount, amount)
+
+  arbitrage(usdt, newAmount, newMinProfit)
+}

@@ -123,3 +123,8 @@ func forceStop(stopFlag: Boolean) = {
 
     [BooleanEntry(forceStopKey, stopFlag)]
 }
+
+@Callable(i)
+func swapREADONLY(assetIdString: String, amount: Int) = {
+    ([], calcSendAmountREADONLY(assetIdString, amount))
+}
